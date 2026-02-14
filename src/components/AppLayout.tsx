@@ -92,7 +92,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1 min-w-0">
               <p className="truncate text-sm font-medium text-sidebar-accent-foreground">{INTERN_PROFILE.name}</p>
-              <p className="truncate text-xs text-sidebar-muted">Intern</p>
+              <p className="truncate text-xs text-sidebar-muted">OJT Student</p>
             </div>
             <button className="text-sidebar-muted hover:text-sidebar-foreground">
               <LogOut className="h-4 w-4" />

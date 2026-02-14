@@ -2,7 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { INTERN_PROFILE, WEEKLY_HOURS, ATTENDANCE_DATA, NOTIFICATIONS, WEEKLY_REPORTS, TIME_RECORDS, GOALS } from "@/lib/mock-data";
 import { StatCard } from "@/components/StatCard";
-import { Clock, TrendingUp, FileCheck, Award, Target, CalendarCheck, Pencil, Check } from "lucide-react";
+import { Clock, TrendingUp, FileCheck, Award, Target, CalendarCheck, Pencil, Check, CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,7 @@ export default function Dashboard() {
 
   const progressPercent = Math.round((INTERN_PROFILE.renderedHours / requiredHours) * 100);
   const remaining = requiredHours - INTERN_PROFILE.renderedHours;
+  const loggedDates = TIME_RECORDS.map((r) => new Date(r.date + "T00:00:00"));
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -177,14 +180,32 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Recent & Notifications */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
+      {/* Calendar & Notifications */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="lg:col-span-1">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-display flex items-center gap-2">
+              <CalendarIcon className="h-4 w-4 text-primary" />
+              Activity Calendar
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <Calendar
+              mode="multiple"
+              selected={loggedDates}
+              className={cn("p-2 pointer-events-auto")}
+              modifiers={{ logged: loggedDates }}
+              modifiersClassNames={{ logged: "bg-primary text-primary-foreground hover:bg-primary/90" }}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-display">Recent Time Logs</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {TIME_RECORDS.slice(0, 4).map((record) => (
+            {TIME_RECORDS.slice(0, 5).map((record) => (
               <div key={record.id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2.5">
                 <div>
                   <p className="text-sm font-medium text-card-foreground">{record.date}</p>
@@ -200,26 +221,27 @@ export default function Dashboard() {
             ))}
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-display">Notifications</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {NOTIFICATIONS.map((notif) => (
-              <div key={notif.id} className={`flex items-start gap-3 rounded-lg px-3 py-2.5 ${!notif.read ? "bg-accent/50" : "bg-muted/30"}`}>
-                <div className={`mt-0.5 h-2 w-2 rounded-full flex-shrink-0 ${
-                  notif.type === "warning" ? "bg-warning" : notif.type === "success" ? "bg-success" : "bg-info"
-                }`} />
-                <div>
-                  <p className="text-sm font-medium text-card-foreground">{notif.title}</p>
-                  <p className="text-xs text-muted-foreground">{notif.message}</p>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
       </div>
+
+      {/* Notifications */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base font-display">Notifications</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+          {NOTIFICATIONS.map((notif) => (
+            <div key={notif.id} className={`flex items-start gap-3 rounded-lg px-3 py-2.5 ${!notif.read ? "bg-accent/50" : "bg-muted/30"}`}>
+              <div className={`mt-0.5 h-2 w-2 rounded-full flex-shrink-0 ${
+                notif.type === "warning" ? "bg-warning" : notif.type === "success" ? "bg-success" : "bg-info"
+              }`} />
+              <div>
+                <p className="text-sm font-medium text-card-foreground">{notif.title}</p>
+                <p className="text-xs text-muted-foreground">{notif.message}</p>
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }

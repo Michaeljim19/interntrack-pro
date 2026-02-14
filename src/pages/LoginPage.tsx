@@ -30,7 +30,7 @@ export default function LoginPage() {
           </div>
           <h1 className="text-2xl font-display font-bold text-foreground">OJT Tracker</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {isLogin ? "Sign in to your account" : "Create your account"}
+            {isLogin ? "Sign in to track your internship" : "Set up your OJT tracker"}
           </p>
         </div>
 
@@ -51,15 +51,6 @@ export default function LoginPage() {
                 <Label>Password</Label>
                 <Input type="password" placeholder="••••••••" />
               </div>
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label>Role</Label>
-                  <select className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
-                    <option>Intern</option>
-                    <option>Supervisor</option>
-                  </select>
-                </div>
-              )}
               <Button type="submit" className="w-full">
                 {isLogin ? "Sign In" : "Create Account"}
               </Button>

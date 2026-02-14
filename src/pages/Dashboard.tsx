@@ -1,18 +1,25 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { INTERN_PROFILE, WEEKLY_HOURS, ATTENDANCE_DATA, NOTIFICATIONS, WEEKLY_REPORTS, TIME_RECORDS, GOALS } from "@/lib/mock-data";
 import { StatCard } from "@/components/StatCard";
-import { Clock, TrendingUp, FileCheck, Award, Target, CalendarCheck } from "lucide-react";
+import { Clock, TrendingUp, FileCheck, Award, Target, CalendarCheck, Pencil, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-const progressPercent = Math.round((INTERN_PROFILE.renderedHours / INTERN_PROFILE.requiredHours) * 100);
-const remaining = INTERN_PROFILE.requiredHours - INTERN_PROFILE.renderedHours;
 const approvedReports = WEEKLY_REPORTS.filter((r) => r.status === "approved").length;
 const completedGoals = GOALS.filter((g) => g.completed).length;
 
 export default function Dashboard() {
+  const [requiredHours, setRequiredHours] = useState(INTERN_PROFILE.requiredHours);
+  const [editingHours, setEditingHours] = useState(false);
+  const [tempHours, setTempHours] = useState(String(requiredHours));
+
+  const progressPercent = Math.round((INTERN_PROFILE.renderedHours / requiredHours) * 100);
+  const remaining = requiredHours - INTERN_PROFILE.renderedHours;
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -33,16 +40,51 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div>
             <h2 className="font-display font-semibold text-card-foreground">OJT Hours Progress</h2>
-            <p className="text-sm text-muted-foreground">
-              {INTERN_PROFILE.renderedHours} / {INTERN_PROFILE.requiredHours} hours completed
-            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              <p className="text-sm text-muted-foreground">
+                {INTERN_PROFILE.renderedHours} / {requiredHours} hours completed
+              </p>
+              {editingHours ? (
+                <div className="flex items-center gap-1.5">
+                  <Input
+                    type="number"
+                    value={tempHours}
+                    onChange={(e) => setTempHours(e.target.value)}
+                    className="h-7 w-24 text-sm"
+                    min={1}
+                    placeholder="Hours"
+                  />
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-7 w-7"
+                    onClick={() => {
+                      const val = parseInt(tempHours);
+                      if (val > 0) setRequiredHours(val);
+                      setEditingHours(false);
+                    }}
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6"
+                  onClick={() => { setTempHours(String(requiredHours)); setEditingHours(true); }}
+                >
+                  <Pencil className="h-3 w-3 text-muted-foreground" />
+                </Button>
+              )}
+            </div>
           </div>
           <Badge variant="secondary" className="self-start text-sm font-semibold">
-            {progressPercent}%
+            {Math.min(progressPercent, 100)}%
           </Badge>
         </div>
-        <Progress value={progressPercent} className="h-3" />
-        <p className="mt-2 text-xs text-muted-foreground">{remaining} hours remaining • Target: {INTERN_PROFILE.endDate}</p>
+        <Progress value={Math.min(progressPercent, 100)} className="h-3" />
+        <p className="mt-2 text-xs text-muted-foreground">{Math.max(remaining, 0)} hours remaining • Target: {INTERN_PROFILE.endDate}</p>
       </motion.div>
 
       {/* Stats */}
@@ -50,7 +92,7 @@ export default function Dashboard() {
         <StatCard
           title="Hours Rendered"
           value={INTERN_PROFILE.renderedHours}
-          subtitle={`of ${INTERN_PROFILE.requiredHours} required`}
+          subtitle={`of ${requiredHours} required`}
           icon={<Clock className="h-5 w-5" />}
         />
         <StatCard
